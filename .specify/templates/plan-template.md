@@ -34,20 +34,50 @@
 [Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+ (Blender embedded Python or NEEDS CLARIFICATION)  
+**Primary Dependencies**: Blender Python API (`bpy`), Blender UI framework (`bpy.types`) or NEEDS CLARIFICATION  
+**Storage**: Blender scene data, add-on preferences, or external files or NEEDS CLARIFICATION  
+**Testing**: `unittest`/`pytest` with Blender test environment or NEEDS CLARIFICATION  
+**Target Platform**: Blender 3.0+ cross-platform or NEEDS CLARIFICATION  
+**Project Type**: Blender add-on (determines addon structure)  
+**Performance Goals**: Real-time UI responsiveness, large scene handling, or NEEDS CLARIFICATION  
+**Constraints**: Blender memory limits, Python API limitations, add-on compatibility or NEEDS CLARIFICATION  
+**Scale/Scope**: Number of users, scene complexity, feature breadth or NEEDS CLARIFICATION
 
 ## Constitution Check
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**I. Seamless Workflow Integration**: Does the feature respect Blender's workflow patterns and maintain context awareness?
+- [ ] Feature integrates with Blender's existing UI/UX patterns
+- [ ] Operations are context-aware (current mode, selection, active objects)
+- [ ] No disruption to standard Blender workflows
+
+**II. Empowerment Over Automation**: Does the feature augment rather than replace artistic decision-making?
+- [ ] User maintains creative control at all times
+- [ ] Focus on handling technical/repetitive tasks
+- [ ] No automatic creative decisions without user approval
+
+**III. Action-Oriented and Practical**: Does the feature prioritize actionable results over theoretical explanations?
+- [ ] Every user interaction results in tangible progress
+- [ ] Bias toward performing operations rather than describing them
+- [ ] Direct, actionable responses provided
+
+**IV. Python-First Foundation**: Does the feature leverage Blender's Python API as the primary mechanism?
+- [ ] Core functionality implemented through `bpy` API
+- [ ] Script generation capability for complex operations
+- [ ] Python scripting as foundation for automation
+
+**V. Transparent and Auditable Actions**: Are all operations visible, traceable, and reversible?
+- [ ] Operations are undoable through Blender's undo system
+- [ ] Complex operations broken into visible steps
+- [ ] Scripts logged in info panel for transparency
+- [ ] No "black box" behavior
+
+**Development Standards Check**:
+- [ ] Python 3.10+ compatibility maintained
+- [ ] Blender add-on architecture followed
+- [ ] No external dependencies for core features
+- [ ] Performance optimized for large scenes
 
 ## Project Structure
 
@@ -66,38 +96,50 @@ specs/[###-feature]/
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  real paths (e.g., copilot/ui/, copilot/operators/). The delivered plan must
   not include Option labels.
 -->
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+# [REMOVE IF UNUSED] Option 1: Single Blender Add-on (DEFAULT)
+copilot/
+├── __init__.py          # Add-on registration
+├── operators/           # Blender operators (actions)
+├── panels/             # UI panels
+├── props/              # Property groups
+├── utils/              # Utility functions
+└── bpy_scripts/        # Generated/template scripts
 
 tests/
-├── contract/
-├── integration/
-└── unit/
+├── integration/        # Tests requiring Blender instance
+├── unit/              # Pure Python unit tests
+└── fixtures/          # Test scene files
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
+# [REMOVE IF UNUSED] Option 2: Multi-module Add-on (when complex features detected)
+copilot/
+├── __init__.py
+├── core/              # Core AI/LLM functionality
+├── ui/                # All UI components
+├── operators/         # Blender operators
+├── scripting/         # Script generation engine
+└── tools/             # Specific tool implementations
+
+tests/
+├── core/
+├── ui/
+├── operators/
+└── integration/
+
+# [REMOVE IF UNUSED] Option 3: Add-on with External Services (when AI API integration detected)
+copilot/
+├── __init__.py
+├── client/            # Local Blender integration
+├── api/               # External service communication
+└── shared/            # Common utilities
+
+external_service/      # If external API/service needed
 ├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
 └── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+```
 api/
 └── [same as backend above]
 
@@ -216,4 +258,4 @@ directories captured above]
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+*Based on Constitution v1.0.0 - See `/memory/constitution.md`*
