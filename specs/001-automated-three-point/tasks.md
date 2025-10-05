@@ -14,7 +14,7 @@
 ## Phase 3.1: Setup
 - [X] T001 Create Blender add-on directory structure at copilot/ with operators/, panels/, utils/, props/ subdirectories
 - [X] T002 Initialize copilot/__init__.py with add-on metadata and registration framework
-- [ ] T003 [P] Configure development tools: create .flake8, pyproject.toml for Black formatting
+- [X] T003 [P] Configure development tools: create .flake8, pyproject.toml for Black formatting
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
