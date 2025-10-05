@@ -12,7 +12,7 @@
 - Paths follow single add-on structure as defined in plan.md
 
 ## Phase 3.1: Setup
-- [ ] T001 Create Blender add-on directory structure at copilot/ with operators/, panels/, utils/, props/ subdirectories
+- [X] T001 Create Blender add-on directory structure at copilot/ with operators/, panels/, utils/, props/ subdirectories
 - [ ] T002 Initialize copilot/__init__.py with add-on metadata and registration framework
 - [ ] T003 [P] Configure development tools: create .flake8, pyproject.toml for Black formatting
 
