@@ -27,45 +27,45 @@
   - Test undo/redo compatibility
   
 ### Integration Tests Based on Quickstart Scenarios
-- [ ] T005 [P] Basic character lighting test in tests/integration/test_basic_character_lighting.py
+- [x] T005 [P] Basic character lighting test in tests/integration/test_basic_character_lighting.py
   - Test scenario: Select mesh object, execute operator, verify lighting rig creation
   - Validate 3 lights + 1 empty + 1 collection created
   - Check Track To constraints properly applied
-  
-- [ ] T006 [P] Product visualization test in tests/integration/test_product_lighting.py
+
+- [x] T006 [P] Product visualization test in tests/integration/test_product_lighting.py
   - Test lighting for product-style objects
   - Verify professional lighting ratios and positioning
   - Check rim light edge highlight functionality
-  
-- [ ] T007 [P] Large scene object test in tests/integration/test_large_object_lighting.py
+
+- [x] T007 [P] Large scene object test in tests/integration/test_large_object_lighting.py
   - Test with objects of various scales
   - Verify distance calculations based on bounding box
   - Ensure lights positioned at appropriate distances
   
-- [ ] T008 [P] Multiple objects test in tests/integration/test_multiple_objects.py
+- [x] T008 [P] Multiple objects test in tests/integration/test_multiple_objects.py
   - Test active object selection with multiple objects selected
   - Verify lighting rig targets only the active object
   
 ### Error Handling Tests
-- [ ] T009 [P] No selection error test in tests/integration/test_no_selection_error.py
+- [x] T009 [P] No selection error test in tests/integration/test_no_selection_error.py
   - Test error handling when no object is selected
   - Verify appropriate error message displayed
   
-- [ ] T010 [P] Invalid object error test in tests/integration/test_invalid_object_error.py
+- [x] T010 [P] Invalid object error test in tests/integration/test_invalid_object_error.py
   - Test with camera, light, and other non-mesh objects
   - Verify error messages for invalid object types
   
-- [ ] T011 [P] Wrong mode error test in tests/integration/test_wrong_mode_error.py
+- [x] T011 [P] Wrong mode error test in tests/integration/test_wrong_mode_error.py
   - Test error handling in Edit mode and other non-Object modes
   - Verify mode requirement enforcement
 
 ### Unit Tests for Utilities
-- [ ] T012 [P] Geometry utility tests in tests/unit/test_geometry_utils.py
+- [x] T012 [P] Geometry utility tests in tests/unit/test_geometry_utils.py
   - Test spherical coordinate calculations
   - Test bounding box analysis functions
   - Test distance calculation algorithms
   
-- [ ] T013 [P] Validation utility tests in tests/unit/test_validation_utils.py
+- [x] T013 [P] Validation utility tests in tests/unit/test_validation_utils.py
   - Test object selection validation
   - Test object type validation
   - Test mode validation functions
