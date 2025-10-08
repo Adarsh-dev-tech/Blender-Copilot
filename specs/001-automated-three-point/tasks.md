@@ -20,7 +20,7 @@
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 
 ### Contract Tests
-- [ ] T004 [P] Lighting operator contract test in tests/integration/test_lighting_operator_contract.py
+- [X] T004 [P] Lighting operator contract test in tests/integration/test_lighting_operator_contract.py
   - Test operator registration and properties
   - Test input validation (active object, object mode)
   - Test success/error return values
