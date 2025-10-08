@@ -73,22 +73,22 @@
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
 ### Data Model Implementation
-- [ ] T014 [P] Light configuration defaults in copilot/utils/light_defaults.py
+- [X] T014 [P] Light configuration defaults in copilot/utils/light_defaults.py
   - Implement LIGHT_DEFAULTS dictionary from data model
   - Include power, color temperature, size, angle configurations
   
 ### Utility Functions
-- [ ] T015 [P] Geometry calculations in copilot/utils/geometry.py
+- [X] T015 [P] Geometry calculations in copilot/utils/geometry.py
   - Implement spherical to cartesian coordinate conversion
   - Implement bounding box analysis functions
   - Implement distance calculation based on object radius
   
-- [ ] T016 [P] Object validation utilities in copilot/utils/validation.py
+- [X] T016 [P] Object validation utilities in copilot/utils/validation.py
   - Implement active object validation
   - Implement object type checking
   - Implement mode validation functions
   
-- [ ] T017 [P] Blender API helpers in copilot/utils/blender_helpers.py
+- [X] T017 [P] Blender API helpers in copilot/utils/blender_helpers.py
   - Implement light creation functions
   - Implement constraint application helpers
   - Implement collection management functions
