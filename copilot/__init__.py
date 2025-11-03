@@ -37,12 +37,15 @@ import bpy
 
 # Import add-on modules
 from .operators import lighting
+from .operators import modifier_assistant
 from .panels import lighting_panel
+from .props import modifier_preferences
 
 # Classes to register
 classes = [
     lighting.COPILOT_OT_create_three_point_lighting,
     lighting_panel.COPILOT_PT_lighting_panel,
+    modifier_assistant.COPILOT_OT_modifier_assistant,
 ]
 
 def register():
@@ -50,10 +53,16 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     
+    # Register modifier assistant properties
+    modifier_preferences.register()
+    
     print("Blender Copilot: Three-Point Lighting add-on registered")
 
 def unregister():
     """Unregister all add-on classes and components"""
+    # Unregister modifier assistant properties
+    modifier_preferences.unregister()
+    
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
     

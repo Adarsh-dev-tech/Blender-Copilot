@@ -92,10 +92,22 @@ def register():
     bpy.types.Scene.modifier_assistant = bpy.props.PointerProperty(
         type=ModifierAssistantProperties
     )
+    
+    # Add command text property directly to Scene for operator access
+    bpy.types.Scene.copilot_modifier_command = bpy.props.StringProperty(
+        name="Copilot Modifier Command",
+        description="Natural language command for modifier assistant",
+        default="",
+        maxlen=256
+    )
 
 
 def unregister():
     """Unregister property groups."""
+    # Remove command property from Scene
+    if hasattr(bpy.types.Scene, 'copilot_modifier_command'):
+        del bpy.types.Scene.copilot_modifier_command
+    
     # Remove from Scene
     if hasattr(bpy.types.Scene, 'modifier_assistant'):
         del bpy.types.Scene.modifier_assistant
