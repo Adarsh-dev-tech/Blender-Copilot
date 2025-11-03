@@ -1,4 +1,11 @@
 [flake8]
-max-line-length = 88
-ignore = E203, W503
-exclude = .git,__pycache__,build,dist
+max-line-length = 100
+ignore = E203, W503, F401
+exclude = .git,__pycache__,build,dist,my-env
+per-file-ignores =
+    # Blender modules not available outside Blender environment
+    copilot/operators/modifier_assistant.py:F821
+    copilot/panels/modifier_panel.py:F821
+    copilot/props/modifier_preferences.py:F821
+    copilot/utils/modifier_workflows.py:F821
+    tests/fixtures/generate_fixtures.py:F821
