@@ -8,6 +8,16 @@ from typing import Optional
 import bpy  # noqa: F401
 
 
+def _get_performance_mode() -> bool:
+    """Check if performance mode is enabled in preferences."""
+    try:
+        from copilot.preferences import get_addon_preferences
+        prefs = get_addon_preferences()
+        return prefs.performance_mode if prefs else False
+    except (ImportError, KeyError):
+        return False
+
+
 def validate_context(workflow_type: str) -> tuple[bool, str]:
     """Validate current Blender context against workflow requirements.
 
@@ -25,6 +35,9 @@ def validate_context(workflow_type: str) -> tuple[bool, str]:
         >>> # With no selection
         >>> validate_context('SMART_ARRAY')
         (False, "Please select an object first")
+    
+    Note:
+        If performance mode is enabled in preferences, some validations may be skipped.
     """
     # Validation routing by workflow type
     validators = {

@@ -9,10 +9,20 @@ import bpy  # noqa: F401
 import bmesh  # noqa: F401
 
 
+def _get_preferences():
+    """Get add-on preferences with defaults fallback."""
+    try:
+        from copilot.preferences import get_addon_preferences
+        return get_addon_preferences()
+    except (ImportError, KeyError):
+        # Fallback to None if preferences not available
+        return None
+
+
 def apply_smart_array_single(obj: 'bpy.types.Object') -> tuple[set, str]:
     """Apply Smart Array workflow to a single mesh object.
 
-    Adds Array modifier with 5 copies along X-axis.
+    Adds Array modifier with count and offset from preferences (default: 5 copies, X=1.0).
 
     Args:
         obj: Target mesh object
@@ -25,15 +35,20 @@ def apply_smart_array_single(obj: 'bpy.types.Object') -> tuple[set, str]:
     Performance target: < 50ms
     """
     try:
+        # Get preferences or use hardcoded defaults
+        prefs = _get_preferences()
+        count = prefs.default_array_count if prefs else 5
+        offset_x = prefs.default_array_offset_x if prefs else 1.0
+        
         # Add Array modifier
         modifier = obj.modifiers.new(name="Array", type='ARRAY')
 
         # Configure for X-axis duplication
-        modifier.count = 5
+        modifier.count = count
         modifier.use_relative_offset = True
-        modifier.relative_offset_displace = (1.0, 0.0, 0.0)
+        modifier.relative_offset_displace = (offset_x, 0.0, 0.0)
 
-        return {'FINISHED'}, "Array modifier added with 5 copies on X-axis"
+        return {'FINISHED'}, f"Array modifier added with {count} copies on X-axis (offset {offset_x})"
 
     except Exception as e:
         return {'CANCELLED'}, f"Failed to add Array modifier: {str(e)}"
@@ -76,6 +91,7 @@ def apply_hard_surface_setup(obj: 'bpy.types.Object') -> tuple[set, str]:
 
     Adds Bevel modifier followed by Subdivision Surface, then sets smooth shading.
     Modifier order is critical for correct hard-surface appearance.
+    Uses preferences for bevel segments and subdivision levels.
 
     Args:
         obj: Target mesh object
@@ -86,14 +102,19 @@ def apply_hard_surface_setup(obj: 'bpy.types.Object') -> tuple[set, str]:
     Performance target: < 100ms
     """
     try:
+        # Get preferences or use hardcoded defaults
+        prefs = _get_preferences()
+        bevel_segments = prefs.default_bevel_segments if prefs else 3
+        subsurf_levels = prefs.default_subdivision_levels if prefs else 2
+        
         # Add Bevel modifier first
         bevel = obj.modifiers.new(name="Bevel", type='BEVEL')
         bevel.limit_method = 'ANGLE'
-        bevel.segments = 3
+        bevel.segments = bevel_segments
 
         # Add Subdivision Surface modifier after Bevel
         subsurf = obj.modifiers.new(name="Subdivision", type='SUBSURF')
-        subsurf.levels = 2
+        subsurf.levels = subsurf_levels
 
         # Set smooth shading
         # Need to use mesh data for shading (deprecated ops method)
@@ -234,7 +255,7 @@ def apply_curve_deform(
 def apply_solidify(obj: 'bpy.types.Object') -> tuple[set, str]:
     """Apply Solidify workflow.
 
-    Adds Solidify modifier with quality settings.
+    Adds Solidify modifier with thickness from preferences (default: 0.01m).
 
     Args:
         obj: Target mesh object
@@ -245,12 +266,16 @@ def apply_solidify(obj: 'bpy.types.Object') -> tuple[set, str]:
     Performance target: < 50ms
     """
     try:
+        # Get preferences or use hardcoded defaults
+        prefs = _get_preferences()
+        thickness = prefs.default_solidify_thickness if prefs else 0.01
+        
         # Add Solidify modifier
         modifier = obj.modifiers.new(name="Solidify", type='SOLIDIFY')
-        modifier.thickness = 0.01  # 1cm
+        modifier.thickness = thickness
         modifier.use_even_offset = True
 
-        return {'FINISHED'}, "Solidify modifier added (thickness: 0.01m, even offset enabled)"
+        return {'FINISHED'}, f"Solidify modifier added (thickness: {thickness:.4f}m, even offset enabled)"
 
     except Exception as e:
         return {'CANCELLED'}, f"Failed to add Solidify modifier: {str(e)}"
