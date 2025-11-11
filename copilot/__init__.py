@@ -23,7 +23,7 @@ bl_info = {
     "name": "Blender Copilot - Automated Three-Point Lighting",
     "author": "Adarsh Hinsodiya", 
     "version": (1, 0, 0),
-    "blender": (3, 0, 0),
+    "blender": (4, 5, 0),
     "location": "View3D > Sidebar > Copilot Tab",
     "description": "Automated three-point lighting setup with professional positioning and ratios",
     "warning": "",
