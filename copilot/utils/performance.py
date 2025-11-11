@@ -1,39 +1,193 @@
-import time
-import bpy
-import mathutils
+"""Performance monitoring and profiling utilities for Modifier Assistant.
 
-def optimize_bounding_box_calculation(obj):
-    """
-    Optimized bounding box calculation for better performance.
+This module provides decorators and utilities for measuring execution time
+of workflow functions and operator methods to ensure they meet contract targets.
+
+Includes utilities from the lighting feature for compatibility.
+"""
+
+import time
+import functools
+from typing import Callable, Any
+import bpy  # noqa: F401
+import mathutils  # noqa: F401
+
+
+def _should_log_performance() -> bool:
+    """Check if performance metrics logging is enabled in preferences."""
+    try:
+        from copilot.preferences import get_addon_preferences
+        prefs = get_addon_preferences()
+        return prefs.show_performance_metrics if prefs else False
+    except (ImportError, KeyError, AttributeError):
+        return False
+
+
+def performance_monitor(target_ms: float = None, operation_name: str = None):
+    """Decorator for monitoring function execution time.
     
     Args:
-        obj: Blender object
-        
-    Returns:
-        dict: Optimized bounding box information
+        target_ms: Optional performance target in milliseconds
+        operation_name: Optional custom name for the operation (defaults to function name)
+    
+    Usage:
+        @performance_monitor(target_ms=50.0, operation_name="Smart Array")
+        def apply_smart_array_single(obj):
+            # ... implementation
+            pass
+    
+    If show_performance_metrics is enabled in preferences, logs timing info.
+    If target_ms is provided and exceeded, logs a warning.
     """
+    def decorator(func: Callable) -> Callable:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            # Check if performance logging is enabled
+            should_log = _should_log_performance()
+            
+            if not should_log:
+                # Performance logging disabled - execute without timing
+                return func(*args, **kwargs)
+            
+            # Performance logging enabled - measure execution time
+            start_time = time.perf_counter()
+            result = func(*args, **kwargs)
+            end_time = time.perf_counter()
+            
+            # Calculate duration in milliseconds
+            duration_ms = (end_time - start_time) * 1000.0
+            
+            # Get operation name
+            op_name = operation_name or func.__name__
+            
+            # Log timing information
+            if target_ms is not None:
+                if duration_ms > target_ms:
+                    print(f"⚠️  {op_name}: {duration_ms:.2f}ms (exceeded target {target_ms}ms)")
+                else:
+                    print(f"✓ {op_name}: {duration_ms:.2f}ms (target {target_ms}ms)")
+            else:
+                print(f"⏱️  {op_name}: {duration_ms:.2f}ms")
+            
+            return result
+        
+        return wrapper
+    return decorator
+
+
+class PerformanceTimer:
+    """Context manager for timing code blocks.
+    
+    Usage:
+        with PerformanceTimer("My Operation", target_ms=100.0) as timer:
+            # ... code to time
+            pass
+        
+        # Access duration after context exits
+        print(f"Duration: {timer.duration_ms:.2f}ms")
+    """
+    
+    def __init__(self, operation_name: str, target_ms: float = None):
+        """Initialize timer.
+        
+        Args:
+            operation_name: Name of the operation being timed
+            target_ms: Optional performance target in milliseconds
+        """
+        self.operation_name = operation_name
+        self.target_ms = target_ms
+        self.start_time = None
+        self.end_time = None
+        self.duration_ms = None
+    
+    def __enter__(self):
+        """Start timing."""
+        self.start_time = time.perf_counter()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Stop timing and log results if enabled."""
+        self.end_time = time.perf_counter()
+        self.duration_ms = (self.end_time - self.start_time) * 1000.0
+        
+        # Only log if performance metrics are enabled
+        if _should_log_performance():
+            if self.target_ms is not None:
+                if self.duration_ms > self.target_ms:
+                    print(f"⚠️  {self.operation_name}: {self.duration_ms:.2f}ms "
+                          f"(exceeded target {self.target_ms}ms)")
+                else:
+                    print(f"✓ {self.operation_name}: {self.duration_ms:.2f}ms "
+                          f"(target {self.target_ms}ms)")
+            else:
+                print(f"⏱️  {self.operation_name}: {self.duration_ms:.2f}ms")
+
+
+def profile_operator_execution(execute_func: Callable) -> Callable:
+    """Decorator for profiling operator execute() method with detailed breakdown.
+    
+    Measures parsing, validation, and workflow execution separately, plus total time.
+    Only logs when show_performance_metrics is enabled in preferences.
+    
+    Usage:
+        class MyOperator(bpy.types.Operator):
+            @profile_operator_execution
+            def execute(self, context):
+                # ... implementation
+                pass
+    """
+    @functools.wraps(execute_func)
+    def wrapper(self, context) -> set:
+        if not _should_log_performance():
+            # Performance logging disabled
+            return execute_func(self, context)
+        
+        # Performance logging enabled - measure total execution
+        print("\n" + "="*60)
+        print("PERFORMANCE PROFILE: Modifier Assistant Operator")
+        print("="*60)
+        
+        start_time = time.perf_counter()
+        result = execute_func(self, context)
+        end_time = time.perf_counter()
+        
+        total_duration_ms = (end_time - start_time) * 1000.0
+        
+        # Log total with contract target
+        print("-"*60)
+        if total_duration_ms > 350.0:
+            print(f"⚠️  TOTAL EXECUTION: {total_duration_ms:.2f}ms "
+                  f"(exceeded target 350ms)")
+        else:
+            print(f"✓ TOTAL EXECUTION: {total_duration_ms:.2f}ms "
+                  f"(target 350ms)")
+        print("="*60 + "\n")
+        
+        return result
+    
+    return wrapper
+
+
+# ============================================================================
+# LIGHTING FEATURE UTILITIES (kept for compatibility)
+# ============================================================================
+
+def optimize_bounding_box_calculation(obj):
+    """Optimized bounding box calculation for better performance (lighting feature)."""
     if not obj or not hasattr(obj, 'bound_box'):
         return None
     
-    # Use matrix multiplication for faster coordinate transformation
     matrix = obj.matrix_world
-    
-    # Pre-calculate bound box corners in world space
     local_corners = obj.bound_box
     world_corners = [matrix @ mathutils.Vector(corner) for corner in local_corners]
     
-    # Use numpy-style vectorized operations where possible
     xs = [corner.x for corner in world_corners]
     ys = [corner.y for corner in world_corners]
     zs = [corner.z for corner in world_corners]
     
     min_coords = mathutils.Vector((min(xs), min(ys), min(zs)))
     max_coords = mathutils.Vector((max(xs), max(ys), max(zs)))
-    
-    # Calculate center more efficiently
     center = (min_coords + max_coords) * 0.5
-    
-    # Calculate radius using the maximum extent
     dimensions = max_coords - min_coords
     radius = max(dimensions) * 0.5
     
@@ -45,71 +199,9 @@ def optimize_bounding_box_calculation(obj):
         'max_coords': max_coords
     }
 
-def batch_object_creation(object_specs):
-    """
-    Create multiple objects in a batch for better performance.
-    
-    Args:
-        object_specs: List of object specification dictionaries
-        
-    Returns:
-        list: Created objects
-    """
-    created_objects = []
-    
-    # Disable viewport updates during batch creation
-    original_update = bpy.context.scene.frame_set
-    
-    try:
-        # Batch create objects
-        for spec in object_specs:
-            if spec['type'] == 'LIGHT':
-                obj = _create_light_optimized(spec)
-            elif spec['type'] == 'EMPTY':
-                obj = _create_empty_optimized(spec)
-            else:
-                continue
-            
-            created_objects.append(obj)
-        
-        # Update scene once after all objects are created
-        bpy.context.view_layer.update()
-        
-    except Exception as e:
-        print(f"Error in batch object creation: {e}")
-    
-    return created_objects
-
-def _create_light_optimized(spec):
-    """Optimized light creation"""
-    light_data = bpy.data.lights.new(name=spec['name'], type='AREA')
-    light_data.energy = spec.get('power', 100)
-    light_data.size = spec.get('size', 1.0)
-    
-    light_object = bpy.data.objects.new(spec['name'], light_data)
-    light_object.location = spec.get('location', (0, 0, 0))
-    
-    return light_object
-
-def _create_empty_optimized(spec):
-    """Optimized empty creation"""
-    empty = bpy.data.objects.new(spec['name'], None)
-    empty.location = spec.get('location', (0, 0, 0))
-    empty.empty_display_type = 'SPHERE'
-    empty.empty_display_size = 0.5
-    
-    return empty
 
 def measure_execution_time(func):
-    """
-    Decorator to measure execution time of functions.
-    
-    Args:
-        func: Function to measure
-        
-    Returns:
-        Decorated function
-    """
+    """Decorator to measure execution time (lighting feature compatibility)."""
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
@@ -118,7 +210,6 @@ def measure_execution_time(func):
         execution_time = end_time - start_time
         print(f"{func.__name__} executed in {execution_time:.4f} seconds")
         
-        # Warn if execution is too slow
         if execution_time > 1.0:
             print(f"WARNING: {func.__name__} exceeded 1 second execution time")
         
@@ -126,38 +217,21 @@ def measure_execution_time(func):
     
     return wrapper
 
-def optimize_constraint_application(lights, target):
-    """
-    Apply constraints to multiple lights efficiently.
-    
-    Args:
-        lights: List of light objects
-        target: Target object for constraints
-    """
-    # Batch constraint creation
-    for light in lights:
-        constraint = light.constraints.new(type='TRACK_TO')
-        constraint.target = target
-        constraint.track_axis = 'TRACK_NEGATIVE_Z'
-        constraint.up_axis = 'UP_Y'
-    
-    # Update constraints in batch
-    bpy.context.view_layer.update()
 
 class PerformanceMonitor:
-    """Monitor performance metrics during lighting operations"""
+    """Monitor performance metrics during operations (lighting feature compatibility)."""
     
     def __init__(self):
         self.start_time = None
         self.checkpoints = []
     
     def start(self):
-        """Start performance monitoring"""
+        """Start performance monitoring."""
         self.start_time = time.time()
         self.checkpoints = []
     
     def checkpoint(self, name):
-        """Add a performance checkpoint"""
+        """Add a performance checkpoint."""
         if self.start_time is None:
             return
         
@@ -166,7 +240,7 @@ class PerformanceMonitor:
         self.checkpoints.append((name, elapsed))
     
     def report(self):
-        """Report performance metrics"""
+        """Report performance metrics."""
         if not self.checkpoints:
             return
         
@@ -179,27 +253,24 @@ class PerformanceMonitor:
             print(f"WARNING: Total execution time {total_time:.4f}s exceeds target")
     
     def meets_performance_target(self, target_seconds=1.0):
-        """Check if performance meets target"""
+        """Check if performance meets target."""
         if not self.checkpoints:
             return True
         
         total_time = self.checkpoints[-1][1]
         return total_time <= target_seconds
 
-# Memory optimization utilities
-def clear_unused_data():
-    """Clear unused data blocks to free memory"""
-    # Clear unused meshes
-    for mesh in bpy.data.meshes:
-        if mesh.users == 0:
-            bpy.data.meshes.remove(mesh)
-    
-    # Clear unused materials  
-    for material in bpy.data.materials:
-        if material.users == 0:
-            bpy.data.materials.remove(material)
-    
-    # Clear unused lights
-    for light in bpy.data.lights:
-        if light.users == 0:
-            bpy.data.lights.remove(light)
+
+# Registration (no classes to register)
+def register():
+    """Register performance module (no-op)."""
+    pass
+
+
+def unregister():
+    """Unregister performance module (no-op)."""
+    pass
+
+
+if __name__ == "__main__":
+    register()
